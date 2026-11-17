@@ -1,6 +1,3 @@
-"""Run: python crit_hit_demo.py    Requires: numpy, matplotlib.
-Crit bonus is EXTRA damage: +100% turns an 80 hit into a 160 crit.
-"""
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, Button
@@ -8,7 +5,6 @@ from matplotlib.ticker import PercentFormatter
 
 NORMAL, FLAT, FIGHTS = 80, 100, 1000
 MAX_ATTACKS = 100
-
 
 def main():
     plt.style.use('dark_background')
@@ -68,11 +64,13 @@ def main():
         flat_line.set_xdata([flat_total, flat_total])
         ax.set_xlim(low - margin, high + margin)
         ax.set_ylim(0, min(110, max(10, heights.max() * 1.3)))
+        expected_total = n * ((1 - c) * NORMAL + c * NORMAL * (1 + b))
         average = np.dot(frequencies, totals)
         variance = np.dot(frequencies, (totals - average) ** 2)
         results.set_text(
-            f'Crit build  •  Average: {average:,.2f}  |  Variance: {variance:,.2f}'
-            f'     Flat build  •  Average: {flat_total:,.2f}  |  Variance: 0.00')
+            f'Crit build  •  Expected total: {expected_total:,.2f}  |  '
+            f'Simulated average: {average:,.2f}  |  Variance: {variance:,.2f}\n'
+            f'Flat build  •  Average: {flat_total:,.2f}  |  Variance: 0.00')
         fig.canvas.draw_idle()
 
     def reset_sliders(_event):
