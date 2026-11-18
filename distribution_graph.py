@@ -6,6 +6,7 @@ from matplotlib.ticker import PercentFormatter
 NORMAL, FLAT, FIGHTS = 80, 100, 1000
 MAX_ATTACKS = 100
 
+# Graph Setup
 def main():
     plt.style.use('dark_background')
     fig, ax = plt.subplots(figsize=(11, 7))
@@ -25,28 +26,30 @@ def main():
                label='Flat build')
     ax.legend(loc='upper right')
 
+
+    # Sliders and button for user input
     chance = Slider(fig.add_axes([0.28, 0.20, 0.48, 0.025]),
                     'Critical Hit Chance (%)', 0, 100, valinit=10, valstep=1, valfmt='%.0f%%')
     bonus = Slider(fig.add_axes([0.28, 0.145, 0.48, 0.025]),
                    'Critical Hit Multiplier (%)', 0, 200, valinit=100, valstep=5, valfmt='%.0f%%')
     attacks = Slider(fig.add_axes([0.28, 0.09, 0.48, 0.025]),
-                    'Number of attacks', 1, MAX_ATTACKS, valinit=10, valstep=1, valfmt='%.0f')
+                    'Number of attacks', 1, MAX_ATTACKS, valinit=30, valstep=1, valfmt='%.0f')
     button = Button(fig.add_axes([0.83, 0.125, 0.12, 0.055]), 'Reset Sliders',
                     color='#23354a', hovercolor='#385575')
     cached_key, frequencies = None, None
 
+    # Graph Update Function
     def update(_=None):
         nonlocal cached_key, frequencies
         c, b, n = chance.val / 100, bonus.val / 100, int(attacks.val)
         key = (c, n)
-        # A bonus change only moves the bars; it doesn't need new random rolls.
         if key != cached_key:
             rolls = np.random.default_rng(42).binomial(n, c, size=FIGHTS)
             frequencies = np.bincount(rolls, minlength=n + 1) / FIGHTS
             cached_key = key
         totals = NORMAL * (n + np.arange(n + 1) * b)
         heights = frequencies * 100
-        if b == 0:  # All crit counts now produce the same total damage.
+        if b == 0:
             heights = np.zeros(n + 1)
             heights[0] = 100
         observed = totals[frequencies > 0]
